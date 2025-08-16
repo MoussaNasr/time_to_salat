@@ -42,6 +42,17 @@
 
       <section class="card">
         <div class="row">
+          <div style="flex: 1 1 60%;">
+            <label for="city">City</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input id="city" type="text" placeholder="e.g., Cairo, London, Mecca" />
+              <button id="findCity" type="button">Find</button>
+            </div>
+            <div id="cityStatus" class="help" style="margin-top:6px;">Lookup city to fill coordinates.</div>
+          </div>
+        </div>
+
+        <div class="row">
           <div>
             <label for="lat">Latitude</label>
             <input id="lat" type="number" step="0.000001" placeholder="e.g., 24.7136" />

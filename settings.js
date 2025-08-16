@@ -39,6 +39,9 @@ function wire() {
   const fontSel = document.getElementById('fontStyle');
   const latEl = document.getElementById('lat');
   const lonEl = document.getElementById('lon');
+  const cityEl = document.getElementById('city');
+  const findBtn = document.getElementById('findCity');
+  const cityStatus = document.getElementById('cityStatus');
 
   saveBtn.addEventListener('click', () => {
     localStorage.setItem(METHOD_KEY, methodSel.value);
@@ -58,6 +61,27 @@ function wire() {
       latEl.value = latitude.toFixed(6);
       lonEl.value = longitude.toFixed(6);
     });
+  });
+
+  findBtn.addEventListener('click', async () => {
+    const q = cityEl.value && cityEl.value.trim();
+    if (!q) { cityStatus.textContent = 'Type a city name first.'; return; }
+    cityStatus.textContent = 'Searching...';
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'time-to-salat/1.0 (your-email@example.com)' } });
+      const data = await res.json();
+      if (data && data.length) {
+        const place = data[0];
+        latEl.value = parseFloat(place.lat).toFixed(6);
+        lonEl.value = parseFloat(place.lon).toFixed(6);
+        cityStatus.textContent = `Found: ${place.display_name}`;
+      } else {
+        cityStatus.textContent = 'No results found.';
+      }
+    } catch (err) {
+      cityStatus.textContent = 'Lookup failed.';
+    }
   });
 }
 
