@@ -2,6 +2,7 @@ import { Methods, getPrayerTimes, getNextPrayer, pad, formatHM, getIntervalForPr
 
 const METHOD_KEY = 'tts:method';
 const COORDS_KEY = 'tts:coords';
+const FONT_KEY = 'tts:fontStyle';
 let wakeLockObj = null;
 
 function getStoredMethod() {
@@ -94,10 +95,14 @@ function render(prayerName, targetTime, msLeft, interval) {
   // Progress bar from start->end
   if (interval && interval[0] && interval[1]) {
     const [start, end] = interval;
-    const total = end - start;
-    const done = Date.now() - start.getTime();
-    const p = Math.max(0, Math.min(1, done / total));
-    bar.style.setProperty('--p', `${(p * 100).toFixed(2)}%`);
+    const total = end.getTime() - start.getTime();
+    if (total <= 0) {
+      bar.style.setProperty('--p', '0%');
+    } else {
+      const done = Date.now() - start.getTime();
+      const p = Math.max(0, Math.min(1, done / total));
+      bar.style.setProperty('--p', `${(p * 100).toFixed(2)}%`);
+    }
   } else {
     bar.style.setProperty('--p', '0%');
   }
@@ -117,6 +122,21 @@ function findNext(now, coords, method) {
 }
 
 async function boot() {
+  // Apply font choice early
+  (function() {
+    const val = localStorage.getItem(FONT_KEY) || 'mono';
+    const root = document.documentElement;
+  const mono = "ClockMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+  const digital = "'Orbitron', ui-sans-serif, system-ui, sans-serif";
+  const sans = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  const serif = "Georgia, 'Times New Roman', Times, serif";
+  let fam = mono;
+  if (val === 'digital') fam = digital;
+  if (val === 'sans') fam = sans;
+  if (val === 'serif') fam = serif;
+    root.style.setProperty('--font-body', fam);
+    root.style.setProperty('--font-clock', fam);
+  })();
   const method = getStoredMethod();
   let coords = getStoredCoords();
   if (!coords) {
@@ -143,7 +163,21 @@ async function boot() {
       next = { name: 'Fajr', time: target };
     }
     const diff = target - now;
-    const interval = getIntervalForPrayer(now, timesToday, timesTomorrow, next.name);
+    let interval;
+    if (next.name === 'Fajr') {
+      // If the target Fajr is on the next day, use yesterday's Isha as the interval start.
+      const isNextDay = (target.getDate() !== now.getDate() || target.getMonth() !== now.getMonth() || target.getFullYear() !== now.getFullYear());
+      if (isNextDay) {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const timesYesterday = getPrayerTimes(yesterday, coords.lat, coords.lon, method);
+        interval = [timesYesterday.isha, target];
+      } else {
+        interval = getIntervalForPrayer(now, timesToday, timesTomorrow, next.name);
+      }
+    } else {
+      interval = getIntervalForPrayer(now, timesToday, timesTomorrow, next.name);
+    }
     render(next.name, target, diff, interval);
   }
 

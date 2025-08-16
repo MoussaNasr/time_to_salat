@@ -15,7 +15,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: ClockMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-body, ClockMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
   -webkit-font-smoothing: antialiased;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -63,9 +63,10 @@ body {
   display: flex;
   align-items: baseline;
   justify-content: center;
+  font-family: var(--font-clock, var(--font-body, ClockMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
 }
-.hm { font-size: clamp(64px, 22vw, 280px); }
-.sec { font-size: clamp(28px, 7vw, 80px); color: var(--accent); vertical-align: baseline; margin-left: 8px; display: none; }
+.hm { font-size: clamp(96px, 30vw, 420px); }
+.sec { font-size: clamp(40px, 9vw, 120px); color: var(--accent); vertical-align: baseline; margin-left: 12px; display: none; }
 
 .subtext {
   margin-top: 12px;
@@ -76,23 +77,37 @@ body {
 /* Pixel-like progress bar */
 .progress {
   width: min(92vw, 1400px);
-  height: 16px;
-  margin: 10px auto 0;
+  height: 6px;
+  margin: 8px auto 0;
   background: #0f0f0f;
-  border: 1px solid #222;
-  border-radius: 4px;
+  opacity: .08;
+  border: 0px solid #222;
+  border-radius: 3px;
   position: relative;
   overflow: hidden;
 }
-.progress::before {
+.progress::before,
+.progress::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: var(--p, 0%);
-  background:
-    linear-gradient(#fff, #fff) left/6px 100% repeat-x,
-    #e6e6e6;
+  top: 0; bottom: 0;
+  width: calc(var(--p, 0%) / 2);
+  background: repeating-linear-gradient(
+    to right,
+    #fff 0,
+    #fff 4px,
+    #e6e6e6 4px,
+    #e6e6e6 8px
+  );
   image-rendering: pixelated;
+}
+.progress::before {
+  left: 50%;
+  transform-origin: left center;
+}
+.progress::after {
+  right: 50%;
+  transform-origin: right center;
 }
 
 /* Settings */

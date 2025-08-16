@@ -7,7 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>Settings • Time to Salat</title>
-    <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body class="settings-body">
     <main class="settings" role="main">
@@ -26,6 +27,17 @@
           <option value="ISNA">Islamic Society of North America (ISNA)</option>
         </select>
         <p class="help">Choose how to compute Fajr/Isha. Defaults to Muslim World League.</p>
+      </section>
+
+      <section class="card">
+        <label for="fontStyle">Font style</label>
+        <select id="fontStyle">
+          <option value="mono">Monospace (default)</option>
+          <option value="digital">Digital / Display</option>
+          <option value="sans">Sans-serif</option>
+          <option value="serif">Serif</option>
+        </select>
+        <p class="help">Choose the clock’s font style.</p>
       </section>
 
       <section class="card">
