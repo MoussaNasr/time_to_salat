@@ -1,0 +1,130 @@
+@font-face {
+  font-family: 'ClockMono';
+  src: local('SF Mono'), local('Menlo'), local('Monaco');
+}
+
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --accent: #9aa0a6;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ClockMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.header {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: env(safe-area-inset-left);
+  right: env(safe-area-inset-right);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  opacity: 0.9;
+}
+
+.prayer-name {
+  font-size: clamp(24px, 4vw, 52px);
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.settings-btn {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: clamp(20px, 3vw, 36px);
+}
+
+.clock {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+.hm { font-size: clamp(64px, 22vw, 280px); }
+.sec { font-size: clamp(28px, 7vw, 80px); color: var(--accent); vertical-align: baseline; margin-left: 8px; display: none; }
+
+.subtext {
+  margin-top: 12px;
+  font-size: clamp(16px, 2.2vw, 28px);
+  color: var(--accent);
+}
+
+/* Pixel-like progress bar */
+.progress {
+  width: min(92vw, 1400px);
+  height: 16px;
+  margin: 10px auto 0;
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.progress::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: var(--p, 0%);
+  background:
+    linear-gradient(#fff, #fff) left/6px 100% repeat-x,
+    #e6e6e6;
+  image-rendering: pixelated;
+}
+
+/* Settings */
+.settings-body { background: var(--bg); color: var(--fg); }
+.settings {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.settings-header { display: flex; align-items: center; gap: 16px; }
+.settings-header h1 { margin: 0; font-size: 28px; }
+.back { color: var(--accent); text-decoration: none; }
+
+.card {
+  background: #0a0a0a;
+  border: 1px solid #151515;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.card label { display: block; color: var(--accent); margin-bottom: 6px; }
+.card select, .card input {
+  width: 100%;
+  background: #111;
+  color: var(--fg);
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 16px;
+}
+.row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+.row > * { flex: 1; }
+button { background: #1b1b1b; color: var(--fg); border: 1px solid #333; border-radius: 8px; padding: 10px 12px; font-size: 16px; }
+button.primary { background: #fff; color: #000; border: none; }
+.help { color: var(--accent); margin-top: 10px; }

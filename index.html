@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Time to Salat" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>Time to Salat</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="app" class="app" role="main">
+      <div class="header">
+        <div class="prayer-name" id="prayerName" aria-live="polite">—</div>
+        <a class="settings-btn" href="./settings.html" aria-label="Settings" title="Settings">⚙️</a>
+      </div>
+      <div class="clock" aria-live="polite">
+        <span id="hm" class="hm">00:00</span><span id="sec" class="sec" aria-hidden="true">:00</span>
+      </div>
+      <div class="progress" id="progressBar" aria-hidden="true"></div>
+      <div class="subtext" id="nextTime">—</div>
+    </main>
+
+    <script type="module" src="./prayerTimes.js"></script>
+    <script type="module" src="./app.js"></script>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
