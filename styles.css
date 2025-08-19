@@ -22,6 +22,15 @@ body {
   user-select: none;
 }
 
+/* Invert colors for blink effect */
+.invert-mode {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.invert-mode .progress { background: #f0f0f0; opacity: .08; }
+
+
 .app {
   display: flex;
   flex-direction: column;

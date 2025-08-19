@@ -81,6 +81,15 @@
         </div>
         <p class="help">Local scheduling works while the app (or PWA) is running. For background notifications when closed, you need server push (not implemented here).</p>
       </section>
+
+      <section class="card">
+        <label for="bgColor">Background color</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="bgColor" type="color" value="#000000" />
+          <label id="bgPreview" style="margin:0 0 0 8px; font-size:14px;">Preview</label>
+        </div>
+        <p class="help">Choose the clock background color. Contrast is computed automatically for the text color.</p>
+      </section>
     </main>
 
     <script type="module" src="./settings.js"></script>

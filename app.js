@@ -5,6 +5,20 @@ const COORDS_KEY = 'tts:coords';
 const FONT_KEY = 'tts:fontStyle';
 let wakeLockObj = null;
 
+function swapBgFg(durationMs = 1000) {
+  try {
+    const root = document.documentElement;
+    const bg = getComputedStyle(root).getPropertyValue('--bg').trim() || '#000';
+    const fg = getComputedStyle(root).getPropertyValue('--fg').trim() || '#fff';
+    root.style.setProperty('--bg', fg);
+    root.style.setProperty('--fg', bg);
+    setTimeout(() => {
+      root.style.setProperty('--bg', bg);
+      root.style.setProperty('--fg', fg);
+    }, durationMs);
+  } catch (e) {}
+}
+
 function getStoredMethod() {
   return localStorage.getItem(METHOD_KEY) || 'MWL';
 }
@@ -82,12 +96,15 @@ function render(prayerName, targetTime, msLeft, interval) {
   const bar = document.getElementById('progressBar');
 
   nameEl.textContent = prayerName ? `Next: ${prayerName}` : '—';
-  hmEl.textContent = msToHM(msLeft);
-  const showSeconds = msLeft <= 60 * 1000;
-  if (showSeconds) {
-    secEl.style.display = 'inline';
-    secEl.textContent = secondsPart(msLeft);
+  // If <= 1 minute left, display MM:SS in the main large element (seconds same size)
+  if (msLeft <= 60 * 1000) {
+    const total = Math.max(0, Math.floor(msLeft / 1000));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    hmEl.textContent = `${pad(m)}:${pad(s)}`;
+    secEl.style.display = 'none';
   } else {
+    hmEl.textContent = msToHM(msLeft);
     secEl.style.display = 'none';
   }
   nextEl.textContent = targetTime ? `at ${formatHM(targetTime)}` : '—';
@@ -136,6 +153,24 @@ async function boot() {
   if (val === 'serif') fam = serif;
     root.style.setProperty('--font-body', fam);
     root.style.setProperty('--font-clock', fam);
+  })();
+  // Apply stored background color
+  (function(){
+    try {
+      const bg = localStorage.getItem('tts:bgColor');
+      if (bg) {
+        const fg = (function(hex){
+          const c = hex.replace('#','');
+          const r = parseInt(c.substring(0,2),16);
+          const g = parseInt(c.substring(2,4),16);
+          const b = parseInt(c.substring(4,6),16);
+          const yiq = (r*299 + g*587 + b*114)/1000;
+          return (yiq >= 128) ? '#000' : '#fff';
+        })(bg);
+        document.documentElement.style.setProperty('--bg', bg);
+        document.documentElement.style.setProperty('--fg', fg);
+      }
+    } catch(e){}
   })();
   const method = getStoredMethod();
   let coords = getStoredCoords();
@@ -210,6 +245,23 @@ async function boot() {
     render(next.name, target, diff, interval);
   // schedule notification for this next prayer
   scheduleNotification(next.name, target);
+    // blink 10 minutes before (one-shot per target)
+    try {
+      const blinkMin = 10;
+      const nowMs = Date.now();
+      const blinkAt = target.getTime() - blinkMin * 60 * 1000;
+      if (!window._ttsLastBlinkTarget) window._ttsLastBlinkTarget = 0;
+      const doBlink = () => {
+        if (window._ttsLastBlinkTarget === target.getTime()) return;
+        window._ttsLastBlinkTarget = target.getTime();
+        swapBgFg(1000);
+      };
+      if (blinkAt > nowMs && blinkAt - nowMs < 1000*1.1) {
+        doBlink();
+      } else if (blinkAt <= nowMs && nowMs - blinkAt < 1000*60) {
+        doBlink();
+      }
+    } catch (e) {}
   }
 
   tick();

@@ -5,6 +5,7 @@ const COORDS_KEY = 'tts:coords';
 const FONT_KEY = 'tts:fontStyle';
 const NOTIFY_KEY = 'tts:notify';
 const NOTIFY_MIN_KEY = 'tts:notifyMin';
+const BG_COLOR_KEY = 'tts:bgColor';
 
 function getStoredMethod() { return localStorage.getItem(METHOD_KEY) || 'MWL'; }
 function getStoredCoords() {
@@ -52,6 +53,10 @@ function wire() {
   localStorage.setItem(FONT_KEY, fontSel.value);
     localStorage.setItem(NOTIFY_KEY, notifyEl.checked ? '1' : '0');
     localStorage.setItem(NOTIFY_MIN_KEY, String(parseInt(notifyMinEl.value || '0', 10)));
+    try {
+      const v = (document.getElementById('bgColor') || {}).value || '#000000';
+      localStorage.setItem(BG_COLOR_KEY, v);
+    } catch (e) {}
     const lat = parseFloat(latEl.value);
     const lon = parseFloat(lonEl.value);
     if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
@@ -72,6 +77,34 @@ function wire() {
       if (perm !== 'granted') { alert('Notification permission denied'); notifyEl.checked = false; }
     }
   });
+
+  // Background color controls
+  const bgColorEl = document.getElementById('bgColor');
+  const bgPreview = document.getElementById('bgPreview');
+  const storedBg = localStorage.getItem(BG_COLOR_KEY) || '#000000';
+  if (bgColorEl) {
+    bgColorEl.value = storedBg;
+    if (bgPreview) {
+      bgPreview.style.background = storedBg;
+      bgPreview.style.color = getContrastColor(storedBg);
+    }
+    bgColorEl.addEventListener('input', () => {
+      const v = bgColorEl.value;
+      if (bgPreview) {
+        bgPreview.style.background = v;
+        bgPreview.style.color = getContrastColor(v);
+      }
+    });
+  }
+
+  function getContrastColor(hex) {
+    const c = hex.replace('#','');
+    const r = parseInt(c.substring(0,2),16);
+    const g = parseInt(c.substring(2,4),16);
+    const b = parseInt(c.substring(4,6),16);
+    const yiq = (r*299 + g*587 + b*114)/1000;
+    return (yiq >= 128) ? '#000000' : '#FFFFFF';
+  }
 
   locBtn.addEventListener('click', () => {
     if (!('geolocation' in navigator)) return;
