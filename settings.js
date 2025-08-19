@@ -3,6 +3,8 @@ import { Methods } from './prayerTimes.js';
 const METHOD_KEY = 'tts:method';
 const COORDS_KEY = 'tts:coords';
 const FONT_KEY = 'tts:fontStyle';
+const NOTIFY_KEY = 'tts:notify';
+const NOTIFY_MIN_KEY = 'tts:notifyMin';
 
 function getStoredMethod() { return localStorage.getItem(METHOD_KEY) || 'MWL'; }
 function getStoredCoords() {
@@ -34,6 +36,8 @@ function populate() {
 
 function wire() {
   const saveBtn = document.getElementById('save');
+  const notifyEl = document.getElementById('notifyEnable');
+  const notifyMinEl = document.getElementById('notifyMinutes');
   const locBtn = document.getElementById('useLocation');
   const methodSel = document.getElementById('method');
   const fontSel = document.getElementById('fontStyle');
@@ -46,12 +50,27 @@ function wire() {
   saveBtn.addEventListener('click', () => {
     localStorage.setItem(METHOD_KEY, methodSel.value);
   localStorage.setItem(FONT_KEY, fontSel.value);
+    localStorage.setItem(NOTIFY_KEY, notifyEl.checked ? '1' : '0');
+    localStorage.setItem(NOTIFY_MIN_KEY, String(parseInt(notifyMinEl.value || '0', 10)));
     const lat = parseFloat(latEl.value);
     const lon = parseFloat(lonEl.value);
     if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
       localStorage.setItem(COORDS_KEY, JSON.stringify({ lat, lon }));
     }
     window.location.href = './index.html';
+  });
+
+  // Populate notification controls
+  const notifyStored = localStorage.getItem(NOTIFY_KEY) === '1';
+  notifyEl.checked = notifyStored;
+  notifyMinEl.value = localStorage.getItem(NOTIFY_MIN_KEY) || '10';
+
+  notifyEl.addEventListener('change', async () => {
+    if (notifyEl.checked) {
+      if (!('Notification' in window)) { alert('Notifications not supported in this browser'); notifyEl.checked = false; return; }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { alert('Notification permission denied'); notifyEl.checked = false; }
+    }
   });
 
   locBtn.addEventListener('click', () => {

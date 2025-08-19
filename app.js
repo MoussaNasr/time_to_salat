@@ -149,6 +149,35 @@ async function boot() {
 
   await ensureWakeLock();
 
+  // Notification scheduling
+  let notifyTimer = null;
+  async function scheduleNotification(nextName, target) {
+    // Clear previous
+    if (notifyTimer) { clearTimeout(notifyTimer); notifyTimer = null; }
+    try {
+      const enabled = localStorage.getItem('tts:notify') === '1';
+      const minBefore = parseInt(localStorage.getItem('tts:notifyMin') || '10', 10);
+      if (!enabled || isNaN(minBefore) || minBefore < 0) return;
+      const notifyAt = new Date(target.getTime() - minBefore * 60 * 1000);
+      const now = new Date();
+      const ms = notifyAt.getTime() - now.getTime();
+      if (ms <= 0) return; // in the past
+      // Message service worker to permission-check registration
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        notifyTimer = setTimeout(() => {
+          navigator.serviceWorker.controller.postMessage({ type: 'show-notification', title: `Upcoming: ${nextName}`, body: `in ${minBefore} minutes` });
+        }, ms);
+      } else {
+        // fallback to Notification API if SW not active
+        notifyTimer = setTimeout(() => {
+          if (Notification.permission === 'granted') {
+            new Notification(`Upcoming: ${nextName}`, { body: `in ${minBefore} minutes` });
+          }
+        }, ms);
+      }
+    } catch (e) {}
+  }
+
   function tick() {
     const now = new Date();
     const timesToday = getPrayerTimes(now, coords.lat, coords.lon, method);
@@ -179,6 +208,8 @@ async function boot() {
       interval = getIntervalForPrayer(now, timesToday, timesTomorrow, next.name);
     }
     render(next.name, target, diff, interval);
+  // schedule notification for this next prayer
+  scheduleNotification(next.name, target);
   }
 
   tick();

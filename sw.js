@@ -29,3 +29,27 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((cached) => cached || fetch(req))
   );
 });
+
+// Listen for messages from the page to show a notification
+self.addEventListener('message', (event) => {
+  const data = event.data || {};
+  if (data && data.type === 'show-notification') {
+    const title = data.title || 'Time to Salat';
+    const body = data.body || '';
+    const opts = { body, tag: 'tts-upcoming', renotify: true };
+    self.registration.showNotification(title, opts);
+  }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      if (clients && clients.length) {
+        clients[0].focus();
+      } else {
+        self.clients.openWindow('/');
+      }
+    })
+  );
+});

@@ -68,6 +68,19 @@
         </div>
         <p class="help">If location permission is denied, set coordinates manually.</p>
       </section>
+
+      <section class="card">
+        <label for="notifyEnable">Notifications</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="notifyEnable" type="checkbox" />
+          <label for="notifyEnable" style="margin:0">Enable local notifications</label>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+          <label for="notifyMinutes" style="width:160px;">Notify before (minutes)</label>
+          <input id="notifyMinutes" type="number" min="0" max="120" step="1" value="10" />
+        </div>
+        <p class="help">Local scheduling works while the app (or PWA) is running. For background notifications when closed, you need server push (not implemented here).</p>
+      </section>
     </main>
 
     <script type="module" src="./settings.js"></script>
