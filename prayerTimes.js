@@ -117,6 +117,7 @@ export function getPrayerTimes(date, lat, lon, methodKey) {
 export function getNextPrayer(now, times) {
   const order = [
     ['Fajr', times.fajr],
+    ['Shuruk', times.sunrise],
     ['Dhuhr', times.dhuhr],
     ['Asr', times.asr],
     ['Maghrib', times.maghrib],
@@ -133,17 +134,17 @@ export function pad(n) { return String(n).padStart(2, '0'); }
 
 export function formatHM(date) { return toHoursMinutes(date); }
 
-export const PrayerOrder = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+export const PrayerOrder = ['Fajr','Shuruk','Dhuhr','Asr','Maghrib','Isha'];
 
 export function getIntervalForPrayer(now, todayTimes, tomorrowTimes, nextName) {
   // Returns [startDate, endDate] for the interval that leads up to nextName
   const mapToday = {
-    Fajr: todayTimes.fajr, Dhuhr: todayTimes.dhuhr, Asr: todayTimes.asr,
-    Maghrib: todayTimes.maghrib, Isha: todayTimes.isha,
+  Fajr: todayTimes.fajr, Shuruk: todayTimes.sunrise, Dhuhr: todayTimes.dhuhr, Asr: todayTimes.asr,
+  Maghrib: todayTimes.maghrib, Isha: todayTimes.isha,
   };
   const mapTomorrow = {
-    Fajr: tomorrowTimes?.fajr, Dhuhr: tomorrowTimes?.dhuhr, Asr: tomorrowTimes?.asr,
-    Maghrib: tomorrowTimes?.maghrib, Isha: tomorrowTimes?.isha,
+  Fajr: tomorrowTimes?.fajr, Shuruk: tomorrowTimes?.sunrise, Dhuhr: tomorrowTimes?.dhuhr, Asr: tomorrowTimes?.asr,
+  Maghrib: tomorrowTimes?.maghrib, Isha: tomorrowTimes?.isha,
   };
   const idx = PrayerOrder.indexOf(nextName);
   const prevName = PrayerOrder[(idx - 1 + PrayerOrder.length) % PrayerOrder.length];

@@ -226,7 +226,7 @@ async function boot() {
       target = timesTomorrow.fajr;
       next = { name: 'Fajr', time: target };
     }
-    const diff = target - now;
+  const diff = target - now;
     let interval;
     if (next.name === 'Fajr') {
       // If the target Fajr is on the next day, use yesterday's Isha as the interval start.
@@ -245,11 +245,12 @@ async function boot() {
     render(next.name, target, diff, interval);
   // schedule notification for this next prayer
   scheduleNotification(next.name, target);
-    // blink 10 minutes before (one-shot per target)
+    // blink at 10:59 before (one-shot per target)
     try {
-      const blinkMin = 10;
+      const blinkMin = 10; // minutes
       const nowMs = Date.now();
-      const blinkAt = target.getTime() - blinkMin * 60 * 1000;
+      // 10:59 means 10 minutes + 59 seconds before target
+      const blinkAt = target.getTime() - (blinkMin * 60 + 59) * 1000;
       if (!window._ttsLastBlinkTarget) window._ttsLastBlinkTarget = 0;
       const doBlink = () => {
         if (window._ttsLastBlinkTarget === target.getTime()) return;
@@ -262,6 +263,23 @@ async function boot() {
         doBlink();
       }
     } catch (e) {}
+
+    // blink 3 times exactly at 00:00
+    if (Math.abs(diff) < 500) {
+      // Only once per target
+      if (!window._ttsZeroBlinkDone || window._ttsZeroBlinkDone !== target.getTime()) {
+        window._ttsZeroBlinkDone = target.getTime();
+        const burst = () => {
+          let count = 0;
+          const iv = setInterval(() => {
+            swapBgFg(200);
+            count += 1;
+            if (count >= 3) clearInterval(iv);
+          }, 250);
+        };
+        burst();
+      }
+    }
   }
 
   tick();
